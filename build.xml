@@ -1,0 +1,60 @@
+<project name="MathExprScanner" default="build" basedir=".">
+	<description>Math Expression Scanner Project Ant build file</description>
+	
+	<!-- source files -->
+    <property name="src.dir" location="../src" />
+    
+    <!-- class and data files -->
+    <property name="build.dir" location="../bin" />
+
+	<!-- delete various generated files -->
+	<target name="clean">
+		<echo message="Removing generated files" />
+		<delete><fileset dir="${build.dir}" /></delete>
+		<delete file='Yylex.java' />
+		<delete file='Yylex.java~' />
+	</target>
+
+	<!-- generate the scanner using JFlex -->
+	<target name="scanner">
+		<echo message="Generating the scanner" />
+		<java jar="jflex-full-1.8.2.jar" 
+			fork="true" 
+			failonerror="true" 
+			maxmemory="128m">
+			<arg value="--nobak" />
+        	<arg value="--quiet" />
+			<arg value="mathexpr.flex" />
+		</java>
+	</target>
+	
+	<!-- compile the scanner and other Java files -->
+	<target name="build" depends="scanner">
+		<echo message="Compiling the scanner" />
+		<javac srcdir="." 
+			destdir="${build.dir}" 
+			includeantruntime="false" />
+	</target>
+
+	<!-- run the scanner on a single expression -->
+	<!-- the inputstring can be modified as needed -->
+    <target name="run-one" depends="build">
+		<echo message="Running the scanner on one expression" />
+        <java classname="MathExprScanner" 
+        	dir="${build.dir}" 
+        	fork="true"
+        	inputstring="1+2*((3-4)/5">
+        </java>
+    </target>
+	
+	<!-- run the scanner on the test data file -->
+    <target name="run" depends="build">
+		<echo message="Running the scanner" />
+        <java classname="MathExprScanner" 
+        	dir="${build.dir}" 
+        	fork="true"
+        	input="testexpressions.txt">
+        </java>
+    </target>
+
+</project>
